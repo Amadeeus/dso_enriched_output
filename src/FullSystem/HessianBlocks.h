@@ -103,27 +103,18 @@ struct FrameFramePrecalc
 	void set(FrameHessian* host, FrameHessian* target, CalibHessian* HCalib);
 };
 
-
-
-
-
 struct FrameHessian
 {
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 	EFFrame* efFrame;
 
 	// constant info & pre-calculated values
-	//DepthImageWrap* frame;
+	// DepthImageWrap* frame;
 	FrameShell* shell;
 
 	Eigen::Vector3f* dI;				 // trace, fine tracking. Used for direction select (not for gradient histograms etc.)
 	Eigen::Vector3f* dIp[PYR_LEVELS];	 // coarse tracking / coarse initializer. NAN in [0] only.
 	float* absSquaredGrad[PYR_LEVELS];  // only used for pixel select (histograms etc.). no NAN.
-
-
-
-
-
 
 	int frameID;						// incremental ID for keyframes only!
 	static int instanceCounter;
@@ -139,7 +130,6 @@ struct FrameHessian
 	std::vector<PointHessian*> pointHessiansMarginalized;	// contains all MARGINALIZED points (= fully marginalized, usually because point went OOB.)
 	std::vector<PointHessian*> pointHessiansOut;		// contains all OUTLIER points (= discarded.).
 	std::vector<ImmaturePoint*> immaturePoints;		// contains all OUTLIER points (= discarded.).
-
 
 	Mat66 nullspaces_pose;
 	Mat42 nullspaces_affine;
@@ -214,8 +204,6 @@ struct FrameHessian
 		setStateZero(state);
 	};
 
-
-
 	inline void setEvalPT_scaled(const SE3 &worldToCam_evalPT, const AffLight &aff_g2l)
 	{
 		Vec10 initial_state = Vec10::Zero();
@@ -239,10 +227,9 @@ struct FrameHessian
 
 		}
 
-
-
 		if(debugImage != 0) delete debugImage;
 	};
+
 	inline FrameHessian()
 	{
 		instanceCounter++;
@@ -443,19 +430,22 @@ struct PointHessian
 		this->idepth = idepth;
 		this->idepth_scaled = SCALE_IDEPTH * idepth;
     }
-	inline void setIdepthScaled(float idepth_scaled) {
+
+    inline void setIdepthScaled(float idepth_scaled) {
 		this->idepth = SCALE_IDEPTH_INVERSE * idepth_scaled;
 		this->idepth_scaled = idepth_scaled;
     }
-	inline void setIdepthZero(float idepth) {
+
+    inline void setIdepthZero(float idepth) {
 		idepth_zero = idepth;
 		idepth_zero_scaled = SCALE_IDEPTH * idepth;
 		nullspaces_scale = -(idepth*1.001 - idepth/1.001)*500;
     }
 
-
-	std::vector<PointFrameResidual*> residuals;					// only contains good residuals (not OOB and not OUTLIER). Arbitrary order.
-	std::pair<PointFrameResidual*, ResState> lastResiduals[2]; 	// contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
+    // Only contains good residuals (not OOB and not OUTLIER). Arbitrary order.
+    std::vector<PointFrameResidual*> residuals;
+	// Contains information about residuals to the last two (!) frames. ([0] = latest, [1] = the one before).
+    std::pair<PointFrameResidual*, ResState> lastResiduals[2];
 
 
 	void release();
@@ -463,7 +453,8 @@ struct PointHessian
     inline ~PointHessian() {assert(efPoint==0); release(); instanceCounter--;}
 
 
-	inline bool isOOB(const std::vector<FrameHessian*>& toKeep, const std::vector<FrameHessian*>& toMarg) const
+	inline bool isOOB(const std::vector<FrameHessian*>& toKeep,
+                      const std::vector<FrameHessian*>& toMarg) const
 	{
 
 		int visInToMarg = 0;
@@ -475,16 +466,14 @@ struct PointHessian
 		}
 		if((int)residuals.size() >= setting_minGoodActiveResForMarg &&
 				numGoodResiduals > setting_minGoodResForMarg+10 &&
-				(int)residuals.size()-visInToMarg < setting_minGoodActiveResForMarg)
+				(int)residuals.size()-visInToMarg <
+				setting_minGoodActiveResForMarg)
 			return true;
-
-
-
-
 
 		if(lastResiduals[0].second == ResState::OOB) return true;
 		if(residuals.size() < 2) return false;
-		if(lastResiduals[0].second == ResState::OUTLIER && lastResiduals[1].second == ResState::OUTLIER) return true;
+		if(lastResiduals[0].second == ResState::OUTLIER
+		&& lastResiduals[1].second == ResState::OUTLIER) return true;
 		return false;
 	}
 

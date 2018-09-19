@@ -139,7 +139,7 @@ public:
                        (int) f->immaturePoints.size());
                 std::cout << T_W_C << "\n";
 
-                // Log host frame IDs and positions for each 3D point
+                // Log host frame IDs and positions and IDs of all observer frames for each 3D point
                 for (PointHessian *p : f->pointHessiansMarginalized)
                 {
                     depth = 1.0f / p->idepth_scaled;
@@ -157,7 +157,15 @@ public:
                                    << " " << p->v
                                    << " " << p->idepth_scaled
                                    << " " << sqrt(1.0f / p->idepth_hessian)
-                                   << " " << p->numGoodResiduals << "\n";
+                                   << " " << p->numGoodResiduals
+                                   << " " << p->residuals.size();
+
+                    for (int n = 0; n < p->residuals.size(); n++)
+                    {
+                        pointcloudFile << " "
+                                       << p->residuals[n]->target->frameID;
+                    }
+                    pointcloudFile << "\n";
                 }
             }
         }

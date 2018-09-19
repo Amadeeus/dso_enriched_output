@@ -44,25 +44,51 @@
 using namespace dso;
 
 
-
-inline int getdir (std::string dir, std::vector<std::string> &files)
+inline int getdir(std::string dir, const std::string datasetType,
+                  std::vector<std::string> &files)
 {
-    DIR *dp;
-    struct dirent *dirp;
-    if((dp  = opendir(dir.c_str())) == NULL)
+    if (datasetType == "robotcar")
     {
-        return -1;
+        std::ifstream tr;
+        std::string timesFile = dir.substr(0, dir.find_last_of('/'))
+                                + "/../../../stereo.timestamps";
+        tr.open(timesFile.c_str());
+        while (!tr.eof() && tr.good())
+        {
+            char buf[1000];
+            tr.getline(buf, 1000);
+
+            int mission_id;
+            long long timestamp_mus;
+
+            if (2 == std::sscanf(buf, "%lld %d", &timestamp_mus, &mission_id))
+            {
+                files.push_back(std::to_string(timestamp_mus) + ".png");
+            }
+            else
+            {
+                printf("ERROR: unknown timestamp format.");
+                exit(1);
+            }
+        }
+        tr.close();
     }
+    else {
+        DIR *dp;
+        struct dirent *dirp;
+        if ((dp = opendir(dir.c_str())) == NULL) {
+            return -1;
+        }
 
-    while ((dirp = readdir(dp)) != NULL) {
-    	std::string name = std::string(dirp->d_name);
+        while ((dirp = readdir(dp)) != NULL) {
+            std::string name = std::string(dirp->d_name);
 
-    	if(name != "." && name != "..")
-    		files.push_back(name);
+            if (name != "." && name != "..")
+                files.push_back(name);
+        }
+        closedir(dp);
+
     }
-    closedir(dp);
-
-
     std::sort(files.begin(), files.end());
 
     if(dir.at( dir.length() - 1 ) != '/') dir = dir+"/";
@@ -146,13 +172,12 @@ public:
 			printf("ERROR: cannot read .zip archive, as compile without ziplib!\n");
 			exit(1);
 #endif
-		}
-		else
-			getdir (path, files);
+        }
+        else
+            getdir(path, datasetType, files);
 
-
-		undistort = Undistort::getUndistorterForFile(calibFile, gammaFile, vignetteFile);
-
+		undistort = Undistort::getUndistorterForFile(calibFile,
+		        gammaFile, vignetteFile);
 
 		widthOrg = undistort->getOriginalSize()[0];
 		heightOrg = undistort->getOriginalSize()[1];

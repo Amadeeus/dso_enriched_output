@@ -116,15 +116,14 @@ public:
                     continue;
 
                 // Log the keyframe IDs, timestamps, and corresponding poses
-                keyframeFile << f->frameID << " " << f->shell->timestamp << " "
-                             << f->shell->camToWorld.translation().transpose() << " "
-                             << f->shell->camToWorld.so3().unit_quaternion().w()
-                             << " "
-                             << f->shell->camToWorld.so3().unit_quaternion().x()
-                             << " "
-                             << f->shell->camToWorld.so3().unit_quaternion().y()
-                             << " "
-                             << f->shell->camToWorld.so3().unit_quaternion().z()
+                keyframeFile << f->frameID
+                             << " " << f->shell->incoming_id
+                             << " " << f->shell->timestamp
+                             << " " << f->shell->camToWorld.translation().transpose()
+                             << " " << f->shell->camToWorld.so3().unit_quaternion().w()
+                             << " " << f->shell->camToWorld.so3().unit_quaternion().x()
+                             << " " << f->shell->camToWorld.so3().unit_quaternion().y()
+                             << " " << f->shell->camToWorld.so3().unit_quaternion().z()
                              << "\n";
 
                 T_W_C = f->shell->camToWorld.matrix();

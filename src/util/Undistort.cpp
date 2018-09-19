@@ -872,7 +872,7 @@ void Undistort::readFromFile(const char* configFileName, int nPars, std::string 
 	{
 		if(w != wOrg || h != hOrg)
 		{
-			printf("ERROR: rectification mode none requires input and output dimenstions to match!\n\n");
+			printf("ERROR: Rectification mode none requires input and output dimensions to match!\n\n");
 			exit(1);
 		}
 		K.setIdentity();

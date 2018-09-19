@@ -336,15 +336,12 @@ private:
 
             while (getline(tr, line))
             {
-                cout << endl << line;
-
                 int segment_id;
                 long long timestamp;
                 float exposure = 0;
 
                 std::vector<std::string> split_vec;
                 boost::algorithm::split(split_vec, line, boost::is_any_of(" "));
-
 
                 timestamp = std::stoll(split_vec[0]);
                 segment_id = std::stoi(split_vec[1]);
@@ -359,14 +356,24 @@ private:
             std::string timestamp_str;
             long long timestamp_check;
             for (auto & p : fs::directory_iterator(path))
+            {
                 timestamp_str = p.path().string().substr(p.path().string().find_last_of('/') + 1, 16);
                 timestamp_check = std::stoll(timestamp_str);
                 timestamps_check.push_back(timestamp_check * 1e-6);
+            }
 
+            std::sort(timestamps_check.begin(), timestamps_check.end());
             assert(timestamps_check.size() == timestamps.size());
-            for (size_t i=0; i < timestamps_check.size(), i++)
+            for (size_t i=0; i < timestamps_check.size(); i++)
             {
-                assert(timestamps[i]==timestamp_check[i]);
+                if (timestamps[i] != timestamps_check[i])
+                {
+                    cout << endl << endl << "index i: " << i << endl;
+                    cout << std::setprecision(16) << "timestamps[i]= " << timestamps[i] << endl;
+                    cout << std::setprecision(16) << "timestamps_check[i]= " << timestamps_check[i];
+                    std::cin.ignore();
+                }
+
             }
         }
         else
